@@ -5,26 +5,26 @@
 // root = [2,1,3]
 // root = []
 
-// Expected results
+// Expected results:
 // [4,7,2,9,6,3,1]
 // [2,3,1]
 // []
 
-/**
- * Definition for a binary tree node.
- * type TreeNode struct {
- *     Val int
- *     Left *TreeNode
- *     Right *TreeNode
- * }
- */
+package leetcode
+
+// TreeNode Definition for a binary tree node.
+type TreeNode struct {
+	Val   int
+	Left  *TreeNode
+	Right *TreeNode
+}
 
 func invertTree(root *TreeNode) *TreeNode {
-  if root == nil {
-    return nil
-  }
+	if root == nil {
+		return nil
+	}
 
-  root.Left, root.Right = invertTree(root.Right), invertTree(root.Left)
+	root.Left, root.Right = invertTree(root.Right), invertTree(root.Left)
 
-  return root
+	return root
 }
