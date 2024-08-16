@@ -2,11 +2,16 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strings"
 )
 
 type Vertex struct {
 	X, Y int
+}
+
+type Coords struct {
+	Lat, Long float64
 }
 
 func main() {
@@ -29,6 +34,21 @@ func main() {
 	nilSlice()
 	sliceWithMake()
 	ticTacToe()
+	extendArrayCapacity(7)
+
+	r := []int{1, 2, 3}
+	r = appendInt(r, 5, 6, 7)
+	fmt.Println(r)
+	r = appendInt(r, 9, 10, 11)
+	fmt.Println(r)
+
+	appendToSlice()
+	forRangeSimple()
+	forRangeOmitValues()
+	mapSimple()
+	mapMultiple()
+	mapMutation()
+	fmt.Println(wordCount("a b c a a c b b c a b c c c a a b c a"))
 }
 
 func pointerInt() {
@@ -145,6 +165,8 @@ func sliceDefaults() {
 	fmt.Println(a)
 }
 
+// Length - actual length of an array.
+// Capacity - possible max length of an array.
 // Slice array from the end: length decrease, capacity same.
 // Slice array from the start: length decrease, capacity decrease.
 func sliceAndCapacity() {
@@ -190,9 +212,9 @@ func sliceWithMake() {
 
 func ticTacToe() {
 	board := [][]string{
-		[]string{"_", "_", "_"},
-		[]string{"_", "_", "_"},
-		[]string{"_", "_", "_"},
+		{"_", "_", "_"},
+		{"_", "_", "_"},
+		{"_", "_", "_"},
 	}
 
 	board[0][0] = "X"
@@ -205,4 +227,127 @@ func ticTacToe() {
 		row := strings.Join(board[i], " ")
 		fmt.Printf("%s\n", row)
 	}
+}
+
+func extendArrayCapacity(newCapacity int) {
+	a := []int{1, 2, 3}
+	t := make([]int, len(a), newCapacity)
+	copy(t, a)
+	a = t
+	fmt.Println(a, len(a), cap(a))
+}
+
+func appendInt(slice []int, data ...int) []int {
+	// [1, 2, 3]   					[5, 6, 7]
+	// [1, 2, 3, x, x, x]   [5, 6, 7]
+
+	sliceLength := len(slice)
+	newLength := sliceLength + len(data)
+
+	if newLength > cap(slice) {
+		newSlice := make([]int, newLength)
+		copy(newSlice, slice)
+		// [1, 2, 3, x, x, x]
+		slice = newSlice
+	}
+
+	// [1, 2, 3, x, x, x]
+	slice = slice[0:newLength]
+	// [x, x, x] << [5, 6, 7]
+	copy(slice[sliceLength:newLength], data)
+	return slice
+}
+
+func appendToSlice() {
+	a := make([]int, 1)
+	a = append(a, 1, 2, 3)
+	printSlice(a)
+
+	b := []string{"aaa", "bbb", "ccc"}
+	c := []string{"ddd", "eee"}
+	b = append(b, c...)
+	fmt.Printf("len=%d cap=%d %v\n", len(b), cap(b), b)
+
+	var s []int
+	s = append(s, 0, 1, 2)
+	printSlice(s)
+}
+
+func forRangeSimple() {
+	pow := []int{1, 2, 4, 8, 16, 32, 64, 128}
+
+	for i, v := range pow {
+		fmt.Printf("2**%d == %d\n", i, v)
+	}
+}
+
+func forRangeOmitValues() {
+	pow := make([]int, 7)
+
+	for i := range pow {
+		pow[i] = int(math.Pow(2, float64(i)))
+	}
+
+	for _, value := range pow {
+		fmt.Printf("%d ", value)
+	}
+	fmt.Println()
+}
+
+func mapSimple() {
+	var m map[string]Coords
+	m = make(map[string]Coords)
+	m["Africa"] = Coords{40.68433, -74.39967}
+
+	fmt.Println(m)
+	fmt.Println(m["Africa"])
+}
+
+func mapMultiple() {
+	var countries = map[string]Coords{
+		"Italy": {40.68433, -74.39967},
+		"Spain": {37.42202, -122.08408},
+	}
+
+	fmt.Println(countries)
+	for name, coords := range countries {
+		fmt.Printf("%v: %v\n", name, coords)
+	}
+
+	for name := range countries {
+		fmt.Println(countries[name])
+	}
+}
+
+func mapMutation() {
+	answers := make(map[string]int)
+	name := "First"
+
+	answers[name] = 15
+	fmt.Printf("%v - %v\n", name, answers[name])
+
+	answers[name] = 17
+	fmt.Printf("%v - %v\n", name, answers[name])
+
+	delete(answers, name)
+	fmt.Printf("%v - %v\n", name, answers[name])
+
+	val, ok := answers[name]
+	fmt.Println("The value:", val, "present?", ok)
+}
+
+func wordCount(str string) map[string]int {
+	wordsMap := make(map[string]int)
+	words := strings.Fields(str)
+
+	for _, word := range words {
+		_, ok := wordsMap[word]
+		if ok {
+			wordsMap[word] += 1
+		} else {
+			wordsMap[word] = 1
+		}
+	}
+
+	return wordsMap
 }
